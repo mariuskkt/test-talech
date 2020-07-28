@@ -22,4 +22,6 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'Admin\HomeController@index')->name('home');
+Route::get('/trash', 'TrashController@index')->name('trash');
+Route::get('/trash/{$id}', 'ProductController@hard_delete')->name('trash.delete');
 Route::resource('/products', 'ProductController');

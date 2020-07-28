@@ -42,7 +42,7 @@ trait AddsNavigation
                     ]
                 ];
                 $nav['right']['dropdown'][] = [
-                    'url' => route('products.index'),
+                    'url' => route('trash'),
                     'name' => 'Trash'
                 ];
                 $nav['right']['dropdown'][] = [

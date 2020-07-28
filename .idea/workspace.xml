@@ -4,9 +4,11 @@
     <list default="true" id="a89720ef-8ebe-4c61-aeb0-4475e0a9e004" name="Default Changelist" comment="">
       <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/database/migrations/2020_07_24_150950_create_products_table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/views/components/color_container.blade.php" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/resources/views/mails/exmpl.blade.php" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/resources/views/products.blade.php" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/resources/views/products_create.blade.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/views/trash.blade.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/pz2aproject.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/pz2aproject.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
@@ -245,7 +247,8 @@
       <workItem from="1595587107405" duration="438000" />
       <workItem from="1595588137785" duration="2450000" />
       <workItem from="1595591691481" duration="552000" />
-      <workItem from="1595592604477" duration="20567000" />
+      <workItem from="1595592604477" duration="41456000" />
+      <workItem from="1595884468935" duration="872000" />
     </task>
     <servers />
   </component>

@@ -22,6 +22,7 @@ class CreateProductsTable extends Migration
             $table->string('color');
             $table->string('active')->default('yes');
             $table->string('image');
+            $table->softDeletes();
             $table->timestamps();
         });
     }
