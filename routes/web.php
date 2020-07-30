@@ -23,5 +23,7 @@ Auth::routes();
 
 Route::get('/home', 'Admin\HomeController@index')->name('home');
 Route::get('/trash', 'TrashController@index')->name('trash');
-Route::get('/trash/{$id}', 'ProductController@hard_delete')->name('trash.delete');
+Route::get('/trash/{$id}', 'TrashController@restore_product')->name('restore');
+Route::get('/graph', 'GraphController@index')->name('graph');
+Route::get('/graph/quantity', 'GraphController@quantity')->name('graph_quantity');
 Route::resource('/products', 'ProductController');

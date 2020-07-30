@@ -22,13 +22,14 @@ h1 {
     align-items: center;
 }
 
-th {
+.product_index_table th {
     text-align: center;
-    margin: 30px;
+
 }
 
-td {
+.product_index_table td {
     text-align: center;
+
 }
 
 .form-custom-style {
@@ -52,3 +53,12 @@ td {
     width: 50px;
 }
 
+#exTab2 h3 {
+    color: white;
+    background-color: #428bca;
+    padding: 5px 15px;
+}
+.chartjs-render-monitor{
+    min-width:500px;
+    min-height:500px
+}

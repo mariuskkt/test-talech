@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Charts\PriceChart;
+use App\Charts\PriceHistoryChart;
+use App\PriceQuantityHistory;
 use App\Product;
 use App\Http\Requests\ProductRequest;
 use Illuminate\Http\Response;
+use ConsoleTVs\Charts\Classes\Chartjs\Chart;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
 
 class ProductController extends Controller
@@ -46,10 +51,6 @@ class ProductController extends Controller
                     'href' => route('products.show', $product->id),
                     'name' => 'Details'
                 ]),
-//                $product->type,
-//                $product->weight,
-//                view('components/color_container', ['color' => $product->color]),
-//                view('components/img', ['class' => 'index-table-img', 'src' => $product->image]),
                 view('components/a', [
                     'href' => route('products.edit', $product->id),
                     'name' => 'EDIT'
@@ -105,6 +106,14 @@ class ProductController extends Controller
                     'type' => 'number',
                     'label' => 'Weight: '
                 ],
+                'quantity' => [
+                    'type' => 'number',
+                    'label' => 'Quantity: '
+                ],
+                'price' => [
+                    'type' => 'number',
+                    'label' => 'Price: '
+                ],
                 'color' => [
                     'type' => 'color',
                     'label' => 'Color: '
@@ -133,13 +142,21 @@ class ProductController extends Controller
     {
         $product = new Product($request->all());
         $product->save();
+
+        $history = new PriceQuantityHistory();
+        $history->product_id = $product->id;
+        $history->price = $product->price;
+        $history->quantity = $product->quantity;
+        $history->created_at = date('Y-m-d H:i:s');
+        $history->updated_at = date('Y-m-d H:i:s');
+        $history->save();
         return redirect('products');
     }
 
     /**
      * Display the specified resource.
      *
-     * @param Product $product
+     * @param $id
      * @return Response
      */
     public function show($id)
@@ -151,7 +168,7 @@ class ProductController extends Controller
             ],
             'header' =>
                 [
-                    'id', 'name', 'EAN', 'type', 'weight', 'color', 'image'
+                    'id', 'name', 'EAN', 'type', 'weight', 'quantity', 'price', 'color', 'image'
                 ],
             'rows' =>
                 [
@@ -161,6 +178,8 @@ class ProductController extends Controller
                         $product->EAN,
                         $product->type,
                         $product->weight,
+                        $product->quantity,
+                        $product->price,
                         view('components/color_container', ['color' => $product->color]),
                         view('components/img', ['class' => 'index-table-img', 'src' => $product->image]),
                         view('components/a', [
@@ -187,7 +206,52 @@ class ProductController extends Controller
                 ]
         ];
 
-        return view('products', ['h1' => 'Details of product #' . $product->id, 'table' => $table]);
+        $price_history = PriceQuantityHistory::where('product_id', $product->id)->pluck('updated_at', 'price');
+
+        $up_to_90days_old = [];
+
+        foreach ($price_history as $price => $date) {
+
+            $now = new \DateTime(now());
+            $editing_day = new \DateTime($date);
+            $difference = $editing_day->diff($now);
+            if ($difference->days < 90) {
+                $up_to_90days_old[$price] = $date;
+                asort($up_to_90days_old);
+            }
+        }
+
+        $price_chart = new PriceHistoryChart;
+        $price_chart->labels(array_values($up_to_90days_old));
+        $price_chart->dataset('Price history of the last 90 days', 'line', array_keys($up_to_90days_old));
+
+        $quantity_history = PriceQuantityHistory::where('product_id', $product->id)->pluck('updated_at', 'quantity');
+
+        $up_to_90days_old = [];
+
+        foreach ($quantity_history as $quantity => $date) {
+
+            $now = new \DateTime(now());
+            $editing_day = new \DateTime($date);
+            $difference = $editing_day->diff($now);
+            if ($difference->days < 90) {
+                $up_to_90days_old[$quantity] = $date;
+                asort($up_to_90days_old);
+            }
+        }
+
+        $quantity_chart = new PriceHistoryChart;
+        $quantity_chart->labels(array_values($up_to_90days_old));
+        $quantity_chart->dataset('Quantity history of the last 90 days', 'line', array_keys($up_to_90days_old));
+
+
+        return view('products_show', [
+            'h1' => 'Details of product #' . $product->id,
+            'title' => 'History',
+            'table' => $table,
+            'price_chart' => $price_chart,
+            'quantity_chart' => $quantity_chart,
+        ]);
     }
 
     /**
@@ -225,6 +289,16 @@ class ProductController extends Controller
                     'type' => 'number',
                     'value' => $current_product->weight,
                     'label' => 'Weight: '
+                ],
+                'quantity' => [
+                    'type' => 'number',
+                    'value' => $current_product->quantity,
+                    'label' => 'Quantity: '
+                ],
+                'price' => [
+                    'type' => 'number',
+                    'value' => $current_product->price,
+                    'label' => 'Price: '
                 ],
                 'color' => [
                     'type' => 'color',
@@ -264,9 +338,22 @@ class ProductController extends Controller
         $product->EAN = $request->input('EAN');
         $product->type = $request->input('type');
         $product->weight = $request->input('weight');
+        $product->price = $request->input('price');
+        $product->quantity = $request->input('quantity');
         $product->color = $request->input('color');
         $product->image = $request->input('image');
         $product->save();
+
+        $history = new PriceQuantityHistory();
+        $history->product_id = $product->id;
+        $history->price = $request->input('price');
+        $history->quantity = $request->input('quantity');
+        $history->updated_at = date('Y-m-d H:i:s');
+        $history->save();
+//        dd($product->updated_at);
+//        DB::table('table')->insertGetId(array(
+//            'price'=>$request->input('price')
+//        ));
         return redirect('products');
     }
 
@@ -281,10 +368,5 @@ class ProductController extends Controller
     {
         $product->delete();
         return redirect('products');
-    }
-
-    public function hard_delete()
-    {
-        dd('destroy');
     }
 }

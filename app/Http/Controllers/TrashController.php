@@ -15,6 +15,17 @@ class TrashController extends Controller
 
     public function index(Request $request)
     {
+        $action = $request->input('action');
+
+        switch ($action) {
+            case 'restore':
+                $this->restore_product($request->input('field_value'));
+                break;
+            case 'delete':
+                $this->hard_delete($request->input('field_value'));
+                break;
+        }
+        
         $trash = Product::onlyTrashed()->get();
 
         $table = [
@@ -29,6 +40,7 @@ class TrashController extends Controller
                 [
                 ]
         ];
+
         foreach ($trash as $trash_item) {
             $table['rows'][] = [
                 $trash_item->id,
@@ -40,7 +52,6 @@ class TrashController extends Controller
                 ]),
                 view('components/form', [
                     'attributes' => [
-                        'action' => ''
                     ],
                     'fields' => [
                         '_method' => [
@@ -60,7 +71,6 @@ class TrashController extends Controller
                 ]),
                 view('components/form', [
                     'attributes' => [
-                        'action' => ''
                     ],
                     'fields' => [
                         '_method' => [
@@ -80,14 +90,8 @@ class TrashController extends Controller
                 ])
             ];
         }
-        $action = $request->all();
-        if (isset($action['action'])) {
-            if ($action['action'] == 'restore') {
-                $this->restore_product($action['field_value']);
-            } elseif ($action['action'] == 'delete') {
-                $this->hard_delete($action['field_value']);
-            }
-        }
+
+
         return view('trash', ['h1' => 'Delete permanently/restore', 'table' => $table]);
     }
 
@@ -95,13 +99,11 @@ class TrashController extends Controller
     {
         $product = Product::onlyTrashed()->where('id', $id)->first();
         $product->restore();
-        return redirect('products');
     }
 
     public function hard_delete($id)
     {
         $product = Product::onlyTrashed()->where('id', $id)->first();
         $product->forceDelete();
-        return redirect('products');
     }
 }
