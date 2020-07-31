@@ -14,7 +14,6 @@ List of features ready and TODOs for future development
 * CRUD ready
 * fakers,seeders ready
 To-do list:
-* Controllers needs to be optimized, some methods needs to be separated in to to the classes and needs to be used in controller methods
 * Form input of photo needs to be changed from URL to file
 * Change "type" input from text to select, with given list of product types 
 

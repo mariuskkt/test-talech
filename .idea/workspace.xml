@@ -4,6 +4,8 @@
     <list default="true" id="a89720ef-8ebe-4c61-aeb0-4475e0a9e004" name="Default Changelist" comment="">
       <change afterPath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/Services/DisplayChart.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/Services/Products/ProductForm.php" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/app/Services/Products/ProductTable.php" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/database/migrations/2020_07_24_150950_create_products_table.php" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/resources/views/components/color_container.blade.php" afterDir="false" />
@@ -213,16 +215,16 @@
     <property name="ts.external.directory.path" value="C:\Program Files\JetBrains\PhpStorm 2019.2.3\plugins\JavaScriptLanguage\jsLanguageServicesImpl\external" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\mariu\Desktop\laravel\pz2aproject\app\Http\Controllers" />
-      <recent name="C:\Users\mariu\Desktop\laravel\pz2aproject\database\migrations" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\mariu\Desktop\laravel\pz2aproject\resources\views\components" />
       <recent name="C:\Users\mariu\Desktop\laravel\pz2aproject\resources\views\partials" />
       <recent name="C:\Users\mariu\Desktop\laravel\pz2aproject\resources\views" />
       <recent name="C:\Users\mariu\Desktop\laravel\pz2aproject\resources\views\layouts" />
       <recent name="C:\Users\mariu\Desktop\laravel\pz2aproject\app\Http\Controllers\Admin" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\mariu\Desktop\laravel\pz2aproject\app\Http\Controllers" />
+      <recent name="C:\Users\mariu\Desktop\laravel\pz2aproject\database\migrations" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -268,7 +270,8 @@
       <workItem from="1595592604477" duration="41456000" />
       <workItem from="1595884468935" duration="28064000" />
       <workItem from="1595972963190" duration="34090000" />
-      <workItem from="1596099519076" duration="6949000" />
+      <workItem from="1596099519076" duration="7474000" />
+      <workItem from="1596178846310" duration="5028000" />
     </task>
     <servers />
   </component>

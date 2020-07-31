@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Charts\PriceChart;
 use App\Charts\PriceHistoryChart;
 use App\PriceQuantityHistory;
 use App\Product;
 use App\Http\Requests\ProductRequest;
+use App\Services\DisplayChart;
+use App\Services\Products\ProductForm;
+use App\Services\Products\ProductTable;
 use Illuminate\Http\Response;
 use ConsoleTVs\Charts\Classes\Chartjs\Chart;
 use Illuminate\Support\Facades\Auth;
@@ -28,52 +30,9 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::all()->sortBy('id');
+        $table = new ProductTable();
 
-        $table = [
-            'attr' => [
-                'class' => 'product_index_table'
-            ],
-            'header' =>
-                [
-                    'id', 'name', 'EAN'
-                ],
-            'rows' =>
-                [
-                ]
-        ];
-        foreach ($products as $product) {
-            $table['rows'][] = [
-                $product->id,
-                $product->name,
-                $product->EAN,
-                view('components/a', [
-                    'href' => route('products.show', $product->id),
-                    'name' => 'Details'
-                ]),
-                view('components/a', [
-                    'href' => route('products.edit', $product->id),
-                    'name' => 'EDIT'
-                ]),
-                view('components/form', [
-                    'attributes' => [
-                        'action' => route('products.destroy', $product->id)
-                    ],
-                    'fields' => [
-                        '_method' => [
-                            'type' => 'hidden',
-                            'value' => 'DELETE'
-                        ]
-                    ],
-                    'buttons' => [
-                        'delete' => [
-                            'title' => 'Delete'
-                        ]
-                    ]
-                ])
-            ];
-        }
-        return view('products', ['h1' => 'List of products', 'table' => $table]);
+        return view('products', ['h1' => 'List of products', 'table' => $table->index()]);
     }
 
     /**
@@ -83,53 +42,9 @@ class ProductController extends Controller
      */
     public function create()
     {
-        $form = [
-            'attributes' => [
-                'action' => route('products.store'),
-                'class' => 'form-custom-style'
-            ],
-            'fields' => [
-                'name' => [
-                    'type' => 'text',
-                    'label' => 'Product name: '
-                ],
-                'EAN' => [
-                    'type' => 'number',
-                    'value' => '',
-                    'label' => 'EAN: '
-                ],
-                'type' => [
-                    'type' => 'text',
-                    'label' => 'Type: '
-                ],
-                'weight' => [
-                    'type' => 'number',
-                    'label' => 'Weight: '
-                ],
-                'quantity' => [
-                    'type' => 'number',
-                    'label' => 'Quantity: '
-                ],
-                'price' => [
-                    'type' => 'number',
-                    'label' => 'Price: '
-                ],
-                'color' => [
-                    'type' => 'color',
-                    'label' => 'Color: '
-                ],
-                'image' => [
-                    'type' => 'url',
-                    'label' => 'Image URL: '
-                ]
-            ],
-            'buttons' => [
-                'submit' => [
-                    'title' => 'Submit'
-                ]
-            ]
-        ];
-        return view('products_create', ['h1' => 'Add a new product', 'form' => $form]);
+        $form = new ProductForm();
+
+        return view('products_create', ['h1' => 'Add a new product', 'form' => $form->create()]);
     }
 
     /**
@@ -158,99 +73,24 @@ class ProductController extends Controller
      *
      * @param $id
      * @return Response
+     * @throws \Exception
      */
     public function show($id)
     {
         $product = Product::withTrashed()->where('id', $id)->first();
-        $table = [
-            'attr' => [
-                'class' => 'product_index_table'
-            ],
-            'header' =>
-                [
-                    'id', 'name', 'EAN', 'type', 'weight', 'quantity', 'price', 'color', 'image'
-                ],
-            'rows' =>
-                [
-                    [
-                        $product->id,
-                        $product->name,
-                        $product->EAN,
-                        $product->type,
-                        $product->weight,
-                        $product->quantity,
-                        $product->price,
-                        view('components/color_container', ['color' => $product->color]),
-                        view('components/img', ['class' => 'index-table-img', 'src' => $product->image]),
-                        view('components/a', [
-                            'href' => route('products.edit', $product->id),
-                            'name' => 'EDIT'
-                        ]),
-                        view('components/form', [
-                            'attributes' => [
-                                'action' => route('products.destroy', $product->id)
-                            ],
-                            'fields' => [
-                                '_method' => [
-                                    'type' => 'hidden',
-                                    'value' => 'DELETE'
-                                ]
-                            ],
-                            'buttons' => [
-                                'delete' => [
-                                    'title' => 'Delete'
-                                ]
-                            ]
-                        ])
-                    ]
-                ]
-        ];
 
-        $price_history = PriceQuantityHistory::where('product_id', $product->id)->pluck('updated_at', 'price');
+        $table = new ProductTable();
 
-        $up_to_90days_old = [];
+        $price_chart = new DisplayChart();
 
-        foreach ($price_history as $price => $date) {
-
-            $now = new \DateTime(now());
-            $editing_day = new \DateTime($date);
-            $difference = $editing_day->diff($now);
-            if ($difference->days < 90) {
-                $up_to_90days_old[$price] = $date;
-                asort($up_to_90days_old);
-            }
-        }
-
-        $price_chart = new PriceHistoryChart;
-        $price_chart->labels(array_values($up_to_90days_old));
-        $price_chart->dataset('Price history of the last 90 days', 'line', array_keys($up_to_90days_old));
-
-        $quantity_history = PriceQuantityHistory::where('product_id', $product->id)->pluck('updated_at', 'quantity');
-
-        $up_to_90days_old = [];
-
-        foreach ($quantity_history as $quantity => $date) {
-
-            $now = new \DateTime(now());
-            $editing_day = new \DateTime($date);
-            $difference = $editing_day->diff($now);
-            if ($difference->days < 90) {
-                $up_to_90days_old[$quantity] = $date;
-                asort($up_to_90days_old);
-            }
-        }
-
-        $quantity_chart = new PriceHistoryChart;
-        $quantity_chart->labels(array_values($up_to_90days_old));
-        $quantity_chart->dataset('Quantity history of the last 90 days', 'line', array_keys($up_to_90days_old));
-
+        $quantity_chart = new DisplayChart();
 
         return view('products_show', [
             'h1' => 'Details of product #' . $product->id,
             'title' => 'History',
-            'table' => $table,
-            'price_chart' => $price_chart,
-            'quantity_chart' => $quantity_chart,
+            'table' => $table->show($product),
+            'price_chart' => $price_chart->priceChart($product),
+            'quantity_chart' => $quantity_chart->quantityChart($product),
         ]);
     }
 
@@ -264,65 +104,9 @@ class ProductController extends Controller
     {
         $current_product = Product::find($product->id);
 
-        $form = [
-            'attributes' => [
-                'action' => route('products.update', $product->id),
-                'class' => 'form-custom-style'
-            ],
-            'fields' => [
-                'name' => [
-                    'type' => 'text',
-                    'value' => $current_product->name,
-                    'label' => 'Product name: '
-                ],
-                'EAN' => [
-                    'type' => 'number',
-                    'value' => $current_product->EAN,
-                    'label' => 'EAN: '
-                ],
-                'type' => [
-                    'type' => 'text',
-                    'value' => $current_product->type,
-                    'label' => 'Type: '
-                ],
-                'weight' => [
-                    'type' => 'number',
-                    'value' => $current_product->weight,
-                    'label' => 'Weight: '
-                ],
-                'quantity' => [
-                    'type' => 'number',
-                    'value' => $current_product->quantity,
-                    'label' => 'Quantity: '
-                ],
-                'price' => [
-                    'type' => 'number',
-                    'value' => $current_product->price,
-                    'label' => 'Price: '
-                ],
-                'color' => [
-                    'type' => 'color',
-                    'value' => $current_product->color,
-                    'label' => 'Color: '
-                ],
-                'image' => [
-                    'type' => 'url',
-                    'value' => $current_product->image,
-                    'label' => 'Image URL: '
-                ],
-                '_method' => [
-                    'type' => 'hidden',
-                    'value' => 'PUT'
-                ]
-            ],
-            'buttons' => [
-                'submit' => [
-                    'title' => 'Submit'
-                ]
-            ]
-        ];
+        $form = new ProductForm();
 
-        return view('products_create', ['h1' => 'Edit chosen product', 'form' => $form]);
+        return view('products_create', ['h1' => 'Edit chosen product', 'form' => $form->edit($product, $current_product)]);
     }
 
     /**
@@ -350,10 +134,7 @@ class ProductController extends Controller
         $history->quantity = $request->input('quantity');
         $history->updated_at = date('Y-m-d H:i:s');
         $history->save();
-//        dd($product->updated_at);
-//        DB::table('table')->insertGetId(array(
-//            'price'=>$request->input('price')
-//        ));
+
         return redirect('products');
     }
 
